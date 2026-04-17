@@ -13,11 +13,9 @@
       body {
         background: white;
       }
-
       #searchSection, #btnPrint {
         display: none;
       }
-
       table {
         font-size: 12px;
       }
@@ -48,7 +46,7 @@
       </div>
     </div>
 
-    <!-- SEARCH + PRINT -->
+    <!-- SEARCH + FILTER + PRINT -->
     <div id="searchSection" class="bg-white border rounded-xl p-4 shadow-sm flex flex-col sm:flex-row gap-3">
 
       <input 
@@ -99,44 +97,63 @@
 <script>
 lucide.createIcons();
 
-// API
-const API_URL = "https://script.google.com/macros/s/AKfycbxt20YImEl4XbIR2h9TJG3POWbNk0xoD6Zvc84twt32Vpz4826HIJNI3wC9E_w0TqW3/exec";
+// ================= API =================
+const API_URL = "https://script.google.com/macros/s/AKfycbxt20YImEl4XbIR2h9TJG3POWbNk0xoD6Zvc84twt32Vpz4826HIJNI3wC9E_w0TqW3/exec"";
 
-// LOAD DATA
+// ================= LOAD DATA =================
 async function loadData() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
 
-  const table = document.getElementById("tableBody");
-  const filter = document.getElementById("filterPertemuan");
+    const table = document.getElementById("tableBody");
+    const filter = document.getElementById("filterPertemuan");
 
-  table.innerHTML = "";
-  filter.innerHTML = '<option value="">Semua Pertemuan</option>';
+    table.innerHTML = "";
+    filter.innerHTML = '<option value="">Semua Pertemuan</option>';
 
-  let set = new Set();
+    let set = new Set();
 
-  data.forEach(row => {
-    set.add(row[0]);
+    data.forEach(row => {
+      set.add(row[0]);
 
-    table.innerHTML += `
-      <tr>
-        <td class="px-4 py-2 border">${row[0]}</td>
-        <td class="px-4 py-2 border">${row[1]}</td>
-        <td class="px-4 py-2 border">${row[2]}</td>
-        <td class="px-4 py-2 border">${row[3]}</td>
-        <td class="px-4 py-2 border">${row[4]}</td>
-        <td class="px-4 py-2 border text-center">🔗</td>
-        <td class="px-4 py-2 border text-center">📄</td>
-      </tr>
-    `;
-  });
+      table.innerHTML += `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-2 border">${row[0]}</td>
+          <td class="px-4 py-2 border">${row[1]}</td>
+          <td class="px-4 py-2 border">${row[2]}</td>
+          <td class="px-4 py-2 border">${row[3]}</td>
+          <td class="px-4 py-2 border">${row[4]}</td>
 
-  set.forEach(p => {
-    filter.innerHTML += `<option value="${p}">Pertemuan ${p}</option>`;
-  });
+          <td class="px-4 py-2 border text-center">
+            ${row[5] ? `
+              <a href="${row[5]}" target="_blank">
+                <i data-lucide="link" class="w-4 h-4 mx-auto text-blue-600"></i>
+              </a>` : '-'}
+          </td>
+
+          <td class="px-4 py-2 border text-center">
+            ${row[6] ? `
+              <a href="${row[6]}" target="_blank">
+                <i data-lucide="file-text" class="w-4 h-4 mx-auto text-green-600"></i>
+              </a>` : '-'}
+          </td>
+        </tr>
+      `;
+    });
+
+    set.forEach(p => {
+      filter.innerHTML += `<option value="${p}">Pertemuan ${p}</option>`;
+    });
+
+    lucide.createIcons();
+
+  } catch (err) {
+    console.error("Error:", err);
+  }
 }
 
-// SEARCH
+// ================= SEARCH =================
 document.getElementById("search").addEventListener("keyup", function() {
   let val = this.value.toLowerCase();
 
@@ -145,7 +162,7 @@ document.getElementById("search").addEventListener("keyup", function() {
   });
 });
 
-// FILTER
+// ================= FILTER =================
 document.getElementById("filterPertemuan").addEventListener("change", function() {
   let val = this.value;
 
@@ -154,18 +171,19 @@ document.getElementById("filterPertemuan").addEventListener("change", function()
   });
 });
 
-// JAM
+// ================= JAM =================
 setInterval(() => {
   document.getElementById("jam").innerText =
     new Date().toLocaleTimeString("id-ID", { hour12: false });
 }, 1000);
 
-// TANGGAL
+// ================= TANGGAL =================
 document.getElementById("tanggal").innerText =
   new Date().toLocaleDateString("id-ID", {
     weekday:'long', year:'numeric', month:'long', day:'numeric'
   });
 
+// INIT
 loadData();
 </script>
 
